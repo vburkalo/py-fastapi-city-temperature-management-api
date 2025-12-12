@@ -6,33 +6,32 @@ FastAPI service that manages cities and their temperature history. It exposes CR
 - Python 3.10+
 - pip / venv
 
-### Setup
+### How to run
+#### Setup
 ```bash
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Run the API
+#### Start the API
 ```bash
 uvicorn app.main:app --reload
 ```
 SQLite database `app.db` is created automatically on first start. Interactive docs live at `http://127.0.0.1:8000/docs`.
 
 ### Endpoints
-- `POST /cities` – create a city. Body: `{ "name": "Paris", "additional_info": "Capital" }`
-- `GET /cities` – list cities.
-- `GET /cities/{city_id}` – retrieve one city.
-- `PUT /cities/{city_id}` – update name or additional_info.
-- `DELETE /cities/{city_id}` – remove a city (cascades temperatures).
-- `POST /temperatures/update` – async fetch current temperature for every city and store it.
-- `GET /temperatures` – list all temperature records; optional `?city_id=` filter. Returns `{ "records": [...], "total": n }`.
+- `POST /cities` - create a city. Body: `{ "name": "Paris", "additional_info": "Capital" }`
+- `GET /cities` - list cities.
+- `GET /cities/{city_id}` - retrieve one city.
+- `PUT /cities/{city_id}` - update name or additional_info.
+- `DELETE /cities/{city_id}` - remove a city (cascades temperatures).
+- `POST /temperatures/update` - async fetch current temperature for every city and store it.
+- `GET /temperatures` - list all temperature records; optional `?city_id=` filter. Returns `{ "records": [...], "total": n }`.
 
-### Temperature fetcher
-- Uses `wttr.in` via `httpx` with async concurrency.
+### Design choices
+- Temperature fetcher uses `wttr.in` via `httpx` with async concurrency and times out quickly to keep the endpoint responsive.
 - If network access fails or the provider errors, a deterministic synthetic temperature is generated per city so the endpoint still responds and history remains usable in restricted environments.
-
-### Design notes
 - SQLAlchemy ORM with SQLite; `SessionLocal` provided via FastAPI dependency.
 - Pydantic schemas keep request/response contracts clear.
 - Routers split into `cities` and `temperatures` to mirror domains.
@@ -40,7 +39,7 @@ SQLite database `app.db` is created automatically on first start. Interactive do
 
 ### Assumptions & simplifications
 - City names are unique.
-- No authentication/authorization.
+- No authentication/authorization or rate limiting.
 - Temperature provider is best-effort; results may be synthetic when offline.
 
 ### Quick manual flow

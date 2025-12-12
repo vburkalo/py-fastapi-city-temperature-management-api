@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import random
-from typing import List, Optional
+from typing import List, Union
 
 import httpx
 
@@ -30,7 +30,7 @@ async def fetch_temperature(city_name: str) -> float:
         return round(rng.uniform(10.0, 30.0), 1)
 
 
-async def fetch_many(cities: List[str]) -> List[Optional[float]]:
+async def fetch_many(cities: List[str]) -> List[Union[float, Exception]]:
     """Fetch temperatures for multiple cities concurrently."""
     tasks = [fetch_temperature(city) for city in cities]
     return await asyncio.gather(*tasks, return_exceptions=True)
